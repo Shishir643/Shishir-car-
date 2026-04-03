@@ -1,0 +1,26 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS cars (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    make VARCHAR(100) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    year YEAR NOT NULL,
+    color VARCHAR(50) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    mileage INT UNSIGNED NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+INSERT INTO cars (make, model, year, color, price, mileage) VALUES
+  ('Toyota', 'Corolla', 2020, 'White', 18500.00, 25000),
+  ('Honda', 'Civic', 2021, 'Black', 22000.00, 15000),
+  ('Ford', 'Mustang', 2019, 'Red', 35000.00, 40000),
+  ('BMW', '3 Series', 2022, 'Blue', 45000.00, 8000),
+  ('Mercedes', 'C-Class', 2021, 'Silver', 52000.00, 12000);
