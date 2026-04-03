@@ -1,0 +1,31 @@
+<tr>
+    <td class="text-muted" style="font-size:.85rem;">{{ index + 1 }}</td>
+    <td class="fw-semibold">{{ car.make }}</td>
+    <td>{{ car.model }}</td>
+    <td>{{ car.year }}</td>
+    <td>
+        <span class="badge-color" style="background:{{ car.color }};"></span>
+        {{ car.color }}
+    </td>
+    <td>{{ car.mileage|number_format(0) }} km</td>
+    <td class="fw-semibold text-success">${{ car.price|number_format(2) }}</td>
+    <td class="text-muted" style="font-size:.82rem;">
+        {{ car.created_at|date('d M Y') }}
+    </td>
+    <td class="text-center">
+        <a href="edit.php?id={{ car.id }}"
+           class="btn btn-outline-primary btn-action me-1"
+           title="Edit">
+            <i class="bi bi-pencil"></i>
+        </a>
+        <button type="button"
+                class="btn btn-outline-danger btn-action"
+                title="Delete"
+                data-bs-toggle="modal"
+                data-bs-target="#deleteModal"
+                data-id="{{ car.id }}"
+                data-name="{{ car.year }} {{ car.make }} {{ car.model }}">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>

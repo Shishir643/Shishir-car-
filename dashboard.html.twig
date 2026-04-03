@@ -1,0 +1,600 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Dashboard - Cars Lists{% endblock %}
+
+{% block extra_css %}
+<style>
+    .stat-card {
+        border-radius: 0.75rem;
+        padding: 1.25rem 1.5rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .stat-card i {
+        font-size: 2rem;
+        opacity: 0.85;
+    }
+
+    .stat-card .value {
+        font-size: 1.9rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .stat-card .label {
+        font-size: 0.8rem;
+        opacity: 0.85;
+        margin-top: 0.25rem;
+    }
+
+    .table thead th {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        background: #f8f9fa;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background: #f0f4ff;
+    }
+
+    .badge-color {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        margin-right: 5px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-action {
+        padding: 0.25rem 0.6rem;
+        font-size: 0.82rem;
+    }
+
+    .filter-sidebar {
+        background: #fff;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        box-shadow: 0 1px 6px rgba(0, 0, 0, 0.07);
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-title {
+        font-weight: 700;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        color: #1a1d23;
+    }
+
+    .filter-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .filter-group label {
+        display: block;
+        font-size: 0.85rem;
+        color: #333;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .price-inputs {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .price-inputs input {
+        width: 70px;
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .btn-reset-filters {
+        width: 100%;
+        margin-top: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggle">
+            <i class="bi bi-list fs-5"></i>
+        </button>
+        <span class="topbar-title">Dashboard</span>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <span class="text-muted" style="font-size:.9rem;">Welcome, {{ username }}</span>
+        <a href="create.php" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg me-1"></i>Add Car
+        </a>
+    </div>
+</div>
+
+<div class="p-4">
+
+    {% if flash %}
+        <div class="alert alert-{{ flash.type }} alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>{{ flash.msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    {% endif %}
+
+    <div class="row g-3 mb-4">
+        <div class="col-sm-6 col-xl-4">
+            <div class="stat-card" style="background:linear-gradient(135deg,#4f8ef7,#3a7ae4);">
+                <i class="bi bi-car-front-fill"></i>
+                <div>
+                    <div class="value">{{ totalCars|number_format }}</div>
+                    <div class="label">Total Cars</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="stat-card" style="background:linear-gradient(135deg,#28c76f,#20a55a);">
+                <i class="bi bi-currency-dollar"></i>
+                <div>
+                    <div class="value">${{ avgPrice|number_format(0) }}</div>
+                    <div class="label">Avg. Price</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xl-4">
+            <div class="stat-card" style="background:linear-gradient(135deg,#ff9f43,#e0882e);">
+                <i class="bi bi-calendar-check"></i>
+                <div>
+                    <div class="value">{{ newest }}</div>
+                    <div class="label">Newest Year</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-sidebar">
+        <h6 class="filter-title"><i class="bi bi-funnel me-2"></i>Advanced Filters</h6>
+
+        <div class="row">
+            <div class="col-md-6 col-lg-3">
+                <div class="filter-group">
+                    <label for="makeSelect">Make</label>
+                    <select class="tom-select filter-select" id="makeSelect" name="make" multiple placeholder="Search & select...">
+                        {% for make in availableMakes %}
+                            <option value="{{ make }}">{{ make }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="filter-group">
+                    <label for="yearSelect">Year</label>
+                    <select class="tom-select filter-select" id="yearSelect" name="year" multiple placeholder="Search & select...">
+                        {% for year in availableYears %}
+                            <option value="{{ year }}">{{ year }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="filter-group">
+                    <label for="colorSelect">Color</label>
+                    <select class="tom-select filter-select" id="colorSelect" name="color" multiple placeholder="Search & select...">
+                        {% for color in availableColors %}
+                            <option value="{{ color }}">{{ color }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-md-6 col-lg-3">
+                <div class="filter-group">
+                    <label>Price Range ($)</label>
+                    <div class="price-inputs">
+                        <input type="number" id="priceMin" placeholder="Min" min="0">
+                        <span>-</span>
+                        <input type="number" id="priceMax" placeholder="Max" min="0">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline-secondary btn-reset-filters" id="resetFilters">Reset Filters</button>
+    </div>
+
+    <div class="card rounded-3">
+        <div class="card-header py-3 d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <h6 class="mb-0 fw-semibold">Car Inventory</h6>
+            <form method="get" class="d-flex gap-2">
+                <input type="search" name="search" class="form-control form-control-sm"
+                       placeholder="Search make, model, color…"
+                       value="{{ search }}" style="min-width:220px" id="searchInput">
+                <button class="btn btn-primary btn-sm">
+                    <i class="bi bi-search"></i>
+                </button>
+                {% if search %}
+                    <a href="index.php" class="btn btn-outline-secondary btn-sm">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="carsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Make</th>
+                            <th>Model</th>
+                            <th>Year</th>
+                            <th>Color</th>
+                            <th>Mileage</th>
+                            <th>Price</th>
+                            <th>Added</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="carsTableBody">
+                        {% if cars is empty %}
+                            <tr>
+                                <td colspan="9" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                                    No cars found.
+                                    {% if search %}
+                                        <a href="index.php">Show all</a>
+                                    {% else %}
+                                        <a href="create.php">Add one!</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% else %}
+                            {% for i, car in cars %}
+                                <tr>
+                                    <td class="text-muted" style="font-size:.85rem;">{{ offset + loop.index0 }}</td>
+                                    <td class="fw-semibold">{{ car.make }}</td>
+                                    <td>{{ car.model }}</td>
+                                    <td>{{ car.year }}</td>
+                                    <td>
+                                        <span class="badge-color" style="background:{{ car.color }};"></span>
+                                        {{ car.color }}
+                                    </td>
+                                    <td>{{ car.mileage|number_format(0) }} km</td>
+                                    <td class="fw-semibold text-success">${{ car.price|number_format(2) }}</td>
+                                    <td class="text-muted" style="font-size:.82rem;">
+                                        {{ car.created_at|date('d M Y') }}
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="edit.php?id={{ car.id }}"
+                                           class="btn btn-outline-primary btn-action me-1"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-action"
+                                                title="Delete"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteModal"
+                                                data-id="{{ car.id }}"
+                                                data-name="{{ car.year }} {{ car.make }} {{ car.model }}">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {% if totalPages > 1 %}
+            <div class="card-footer bg-white border-top d-flex align-items-center justify-content-between flex-wrap gap-2 py-3">
+                <small class="text-muted">
+                    Showing {{ offset + 1 }}–{{ min(offset + perPage, total) }} of {{ total }} cars
+                </small>
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item {% if currentPage <= 1 %}disabled{% endif %}">
+                            <a class="page-link" href="?page={{ currentPage - 1 }}&search={{ search|urlencode }}">
+                                <i class="bi bi-chevron-left"></i>
+                            </a>
+                        </li>
+                        {% for p in 1..totalPages %}
+                            <li class="page-item {% if p == currentPage %}active{% endif %}">
+                                <a class="page-link" href="?page={{ p }}&search={{ search|urlencode }}">{{ p }}</a>
+                            </li>
+                        {% endfor %}
+                        <li class="page-item {% if currentPage >= totalPages %}disabled{% endif %}">
+                            <a class="page-link" href="?page={{ currentPage + 1 }}&search={{ search|urlencode }}">
+                                <i class="bi bi-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Delete Car</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete <strong id="modalCarName"></strong>? This action cannot be undone.
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="post" action="delete.php">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+                    <input type="hidden" name="id" id="modalCarId">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.6/dist/purify.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Custom safe dropdown implementation
+        class SafeSelect {
+            constructor(selector) {
+                this.originalSelect = document.querySelector(selector);
+                if (!this.originalSelect) return;
+                this.selectedValues = [];
+                this.isOpen = false;
+                this.init();
+            }
+
+            init() {
+                this.wrapper = document.createElement('div');
+                this.wrapper.className = 'custom-select-wrapper';
+                this.wrapper.style.cssText = 'position: relative; width: 100%;';
+
+                this.control = document.createElement('div');
+                this.control.className = 'custom-select-control form-control';
+                this.control.style.cssText = 'display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; cursor: pointer; background: white; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 0.5rem;';
+
+                this.placeholder = document.createElement('span');
+                this.placeholder.className = 'custom-select-placeholder';
+                this.placeholder.textContent = this.originalSelect.placeholder || 'Select...';
+                this.placeholder.style.cssText = 'color: #6c757d; font-size: 0.95rem;';
+                this.control.appendChild(this.placeholder);
+
+                this.dropdown = document.createElement('div');
+                this.dropdown.className = 'custom-select-dropdown';
+                this.dropdown.style.cssText = 'position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #dee2e6; border-top: none; border-radius: 0 0 0.375rem 0.375rem; max-height: 300px; overflow-y: auto; z-index: 1000; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1);';
+
+                const searchInput = document.createElement('input');
+                searchInput.type = 'text';
+                searchInput.className = 'custom-select-search';
+                searchInput.placeholder = 'Search...';
+                searchInput.style.cssText = 'width: 100%; padding: 0.5rem; border: none; border-bottom: 1px solid #dee2e6; font-size: 0.95rem;';
+                this.dropdown.appendChild(searchInput);
+
+                const optionsContainer = document.createElement('div');
+                optionsContainer.className = 'custom-select-options';
+                this.dropdown.appendChild(optionsContainer);
+
+                Array.from(this.originalSelect.options).forEach(option => {
+                    if (option.value) {
+                        const optionEl = document.createElement('div');
+                        optionEl.className = 'custom-select-option';
+                        optionEl.textContent = option.textContent;
+                        optionEl.dataset.value = option.value;
+                        optionEl.style.cssText = 'padding: 0.75rem 1rem; cursor: pointer; border-bottom: 1px solid #f0f0f0;';
+
+                        optionEl.addEventListener('mouseenter', () => {
+                            optionEl.style.backgroundColor = '#f0f4ff';
+                        });
+                        optionEl.addEventListener('mouseleave', () => {
+                            optionEl.style.backgroundColor = 'white';
+                        });
+
+                        optionEl.addEventListener('click', () => {
+                            this.toggleValue(option.value, option.textContent);
+                        });
+
+                        optionsContainer.appendChild(optionEl);
+                    }
+                });
+
+                searchInput.addEventListener('input', (e) => {
+                    const query = e.target.value.toLowerCase();
+                    Array.from(optionsContainer.children).forEach(opt => {
+                        opt.style.display = opt.textContent.toLowerCase().includes(query) ? 'block' : 'none';
+                    });
+                });
+
+                this.wrapper.appendChild(this.control);
+                this.wrapper.appendChild(this.dropdown);
+                this.originalSelect.style.display = 'none';
+                this.originalSelect.parentNode.insertBefore(this.wrapper, this.originalSelect);
+
+                this.control.addEventListener('click', () => this.toggle());
+                document.addEventListener('click', (e) => {
+                    if (!this.wrapper.contains(e.target)) {
+                        this.close();
+                    }
+                });
+            }
+
+            toggleValue(value, text) {
+                const index = this.selectedValues.findIndex(v => v.value === value);
+                if (index > -1) {
+                    this.selectedValues.splice(index, 1);
+                } else {
+                    this.selectedValues.push({ value, text });
+                }
+                this.updateControl();
+                this.dispatchChange();
+            }
+
+            updateControl() {
+                const optionsContainer = this.dropdown.querySelector('.custom-select-options');
+                Array.from(optionsContainer.children).forEach(opt => {
+                    const isSelected = this.selectedValues.some(v => v.value === opt.dataset.value);
+                    opt.style.fontWeight = isSelected ? 'bold' : 'normal';
+                    opt.style.backgroundColor = isSelected ? '#e8f0ff' : 'white';
+                });
+
+                const tagsContainer = this.control;
+                const tags = tagsContainer.querySelectorAll('.custom-select-tag');
+                tags.forEach(t => t.remove());
+
+                if (this.selectedValues.length > 0) {
+                    this.placeholder.style.display = 'none';
+                    this.selectedValues.forEach(item => {
+                        const tag = document.createElement('span');
+                        tag.className = 'custom-select-tag';
+                        tag.style.cssText = 'background: #e8f0ff; border: 1px solid #b0c4ff; border-radius: 0.25rem; padding: 0.25rem 0.5rem; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem;';
+                        tag.textContent = item.text;
+                        
+                        const removeBtn = document.createElement('button');
+                        removeBtn.textContent = '×';
+                        removeBtn.type = 'button';
+                        removeBtn.style.cssText = 'background: none; border: none; cursor: pointer; padding: 0; font-size: 1rem; color: #666;';
+                        removeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            this.toggleValue(item.value, item.text);
+                        });
+                        tag.appendChild(removeBtn);
+                        tagsContainer.insertBefore(tag, tagsContainer.lastChild);
+                    });
+                } else {
+                    this.placeholder.style.display = 'inline';
+                }
+            }
+
+            toggle() {
+                this.isOpen ? this.close() : this.open();
+            }
+
+            open() {
+                this.dropdown.style.display = 'block';
+                this.isOpen = true;
+                this.dropdown.querySelector('.custom-select-search').focus();
+            }
+
+            close() {
+                this.dropdown.style.display = 'none';
+                this.isOpen = false;
+            }
+
+            getValue() {
+                return this.selectedValues.map(v => v.value);
+            }
+
+            clear() {
+                this.selectedValues = [];
+                this.updateControl();
+                this.dispatchChange();
+            }
+
+            dispatchChange() {
+                this.wrapper.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+
+        const makeSelect = new SafeSelect('#makeSelect');
+        const yearSelect = new SafeSelect('#yearSelect');
+        const colorSelect = new SafeSelect('#colorSelect');
+
+        let filterTimeout;
+
+        function applyFilters() {
+            const makes = makeSelect.getValue();
+            const years = yearSelect.getValue();
+            const colors = colorSelect.getValue();
+            const priceMin = document.getElementById('priceMin').value || 0;
+            const priceMax = document.getElementById('priceMax').value || 999999;
+            const search = document.getElementById('searchInput').value;
+
+            const params = new URLSearchParams();
+            makes.forEach(m => params.append('makes[]', m));
+            years.forEach(y => params.append('years[]', y));
+            colors.forEach(c => params.append('colors[]', c));
+            params.append('priceMin', priceMin);
+            params.append('priceMax', priceMax);
+            if (search) params.append('search', search);
+
+            // Fetch HTML fragment instead of JSON
+            fetch('fetch_cars.php?html=1&' + params.toString())
+                .then(res => res.text())
+                .then(html => {
+                    const tbody = document.getElementById('carsTableBody');
+                    tbody.innerHTML = DOMPurify.sanitize(html);
+                })
+                .catch(err => console.error('Filter error:', err));
+        }
+
+        function debouncedApplyFilters() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(applyFilters, 300);
+        }
+
+        if (makeSelect.wrapper) makeSelect.wrapper.addEventListener('change', applyFilters);
+        if (yearSelect.wrapper) yearSelect.wrapper.addEventListener('change', applyFilters);
+        if (colorSelect.wrapper) colorSelect.wrapper.addEventListener('change', applyFilters);
+
+        const priceMinEl = document.getElementById('priceMin');
+        const priceMaxEl = document.getElementById('priceMax');
+        const searchInputEl = document.getElementById('searchInput');
+
+        if (priceMinEl) priceMinEl.addEventListener('input', debouncedApplyFilters);
+        if (priceMaxEl) priceMaxEl.addEventListener('input', debouncedApplyFilters);
+        if (searchInputEl) searchInputEl.addEventListener('input', debouncedApplyFilters);
+
+        const resetBtn = document.getElementById('resetFilters');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                makeSelect.clear();
+                yearSelect.clear();
+                colorSelect.clear();
+                if (priceMinEl) priceMinEl.value = '';
+                if (priceMaxEl) priceMaxEl.value = '';
+                if (searchInputEl) searchInputEl.value = '';
+                window.location.href = 'index.php';
+            });
+        }
+
+        const deleteModal = document.getElementById('deleteModal');
+        if (deleteModal) {
+            deleteModal.addEventListener('show.bs.modal', function (e) {
+                const btn = e.relatedTarget;
+                document.getElementById('modalCarId').value = btn.dataset.id;
+                document.getElementById('modalCarName').textContent = btn.dataset.name;
+            });
+        }
+
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', function () {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) sidebar.classList.toggle('show');
+            });
+        }
+    });
+</script>
+{% endblock %}
