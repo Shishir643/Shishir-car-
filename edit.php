@@ -82,7 +82,7 @@ $csrf_token = generateCSRFToken();
 $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
 $twig = new \Twig\Environment($loader, ['cache' => false]);
 
-echo $twig->render('form.html.twig', [
+echo $twig->render('edit.html.twig', [
     'page' => 'edit',
     'page_title' => 'Edit Car',
     'is_edit' => true,
