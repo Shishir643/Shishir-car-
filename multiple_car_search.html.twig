@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Multiple Car Search</title>
+</head>
+<body>
+
+<h1>Multiple Car Search</h1>
+
+<a href="index.php">Back to Car List</a></p>
+
+<form method="get" action="multiple_car_search.php">
+    <label>Make:</label>
+    <input type="text" name="make" value="{{ make }}">
+
+    <label>Model:</label>
+    <input type="text" name="model" value="{{ model }}">
+
+    <label>Year:</label>
+    <input type="number" name="year" value="{{ year }}">
+
+    <label>Color:</label>
+    <input type="text" name="color" value="{{ color }}">
+
+    <label>Min Price:</label>
+    <input type="number" name="min_price" value="{{ min_price }}">
+
+    <label>Max Price:</label>
+    <input type="number" name="max_price" value="{{ max_price }}">
+
+    <button type="submit">Search</button>
+</form>
+
+<hr>
+
+{% if cars is empty %}
+    <p>No cars found.</p>
+{% else %}
+    <table border="1" cellpadding="8" cellspacing="0">
+        <tr>
+            <th>ID</th>
+            <th>Make</th>
+            <th>Model</th>
+            <th>Year</th>
+            <th>Color</th>
+            <th>Price</th>
+            <th>Mileage</th>
+        </tr>
+
+        {% for car in cars %}
+            <tr>
+                <td>{{ car.id }}</td>
+                <td>{{ car.make }}</td>
+                <td>{{ car.model }}</td>
+                <td>{{ car.year }}</td>
+                <td>{{ car.color }}</td>
+                <td>{{ car.price }}</td>
+                <td>{{ car.mileage }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endif %}
+
+</body>
+</html>
