@@ -1,0 +1,61 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Ajax Car Search{% endblock %}
+
+{% block content %}
+<div class="topbar">
+    <div class="d-flex align-items-center gap-3">
+        <span class="topbar-title">Ajax Car Search</span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2">
+        <a href="index.php" class="btn btn-outline-secondary btn-sm">Back to Car List</a>
+    </div>
+</div>
+
+<div class="p-4">
+    <div class="card rounded-3">
+        <div class="card-header">
+            <h6 class="mb-0 fw-semibold">Search Cars with Ajax</h6>
+        </div>
+
+        <div class="card-body">
+            <label for="car_search" class="form-label">Search Car:</label>
+            <input type="text"
+                   id="car_search"
+                   class="form-control"
+                   onkeyup="searchCar()"
+                   placeholder="Type make, model or color...">
+
+            <div id="search_result" class="mt-4"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function searchCar() {
+    const keyword = document.getElementById('car_search').value;
+    const resultDiv = document.getElementById('search_result');
+
+    if (keyword.trim() === '') {
+        resultDiv.innerHTML = '';
+        return;
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'ajax_car_results.php?keyword=' + encodeURIComponent(keyword), true);
+
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            resultDiv.innerHTML = xhr.responseText;
+        } else {
+            resultDiv.innerHTML = '<p class="text-danger">Error loading results.</p>';
+        }
+    };
+
+    xhr.send();
+}
+</script>
+{% endblock %}
