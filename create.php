@@ -64,7 +64,7 @@ $csrf_token = generateCSRFToken();
 $loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/templates');
 $twig = new \Twig\Environment($loader, ['cache' => false]);
 
-echo $twig->render('form.html.twig', [
+echo $twig->render('create.html.twig', [
     'page' => 'create',
     'page_title' => 'Add Car',
     'is_edit' => false,
