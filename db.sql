@@ -23,4 +23,5 @@ INSERT INTO cars (make, model, year, color, price, mileage) VALUES
   ('Honda', 'Civic', 2021, 'Black', 22000.00, 15000),
   ('Ford', 'Mustang', 2019, 'Red', 35000.00, 40000),
   ('BMW', '3 Series', 2022, 'Blue', 45000.00, 8000),
-  ('Mercedes', 'C-Class', 2021, 'Silver', 52000.00, 12000);
+  ('Mercedes', 'C-Class', 2021, 'Silver', 52000.00, 12000)
+('lexus', '850', 'Dark blue', 57000.00, 600000);
