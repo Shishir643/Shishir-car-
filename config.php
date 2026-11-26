@@ -5,7 +5,7 @@ define('DB_PORT', '3306');
 define('DB_USER', '2420823');
 define('DB_PASS', 'Trimag@2024#');
 define('DB_NAME', 'db2420823');
-
+//kda
 try {
     $dsn = sprintf(
         'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
