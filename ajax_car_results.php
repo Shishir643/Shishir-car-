@@ -7,7 +7,7 @@ $keyword = trim($_GET['keyword'] ?? '');
 if ($keyword === '') {
     exit;
 }
-
+//mkssa
 $stmt = $pdo->prepare("
     SELECT id, make, model, year, color, price, mileage
     FROM cars
