@@ -1,7 +1,7 @@
 <?php
 require_once 'config.php';
 require_once 'vendor/autoload.php';
-
+//sadasd
 requireLogin();
 
 $id = (int) ($_GET['id'] ?? $_POST['id'] ?? 0);
